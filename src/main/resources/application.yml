@@ -1,0 +1,92 @@
+server:
+  port: 8080
+  shutdown: graceful
+spring:
+  application.name: urban-company-platform
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/urbancompany}
+    username: ${DB_USER:uc}
+    password: ${DB_PASSWORD:uc}
+    hikari.maximum-pool-size: 20
+  jpa:
+    open-in-view: false
+    hibernate.ddl-auto: validate
+    properties:
+      hibernate.jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      acks: all
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties: { enable.idempotence: true }
+    consumer:
+      group-id: uc-platform
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    com.urbancompany: INFO
+management:
+  endpoints.web.exposure.include: health,info,metrics,prometheus
+  endpoint.health.probes.enabled: true
+  tracing.sampling.probability: 1.0
+springdoc:
+  swagger-ui.path: /swagger-ui.html
+
+app:
+  timezone: Asia/Kolkata
+  warranty-days: 30
+  seed-demo: true
+  jwt:
+    secret: ${JWT_SECRET:change-me-change-me-change-me-change-me-0123456789}
+    access-ttl-minutes: 15
+    refresh-ttl-days: 7
+  otp:
+    expose: true            # dev only: returns OTP in API response and logs it
+    ttl-seconds: 300
+    max-requests-per-hour: 5
+  admin:
+    email: admin@urbancompany.local
+    password: ${ADMIN_PASSWORD:Admin@12345}
+    phone: "+919000000000"
+  pricing:
+    convenience-fee: 49.00
+    instant-surcharge: 99.00
+    gst-percent: 18.00
+    plus-cashback-percent: 5.00
+  slots:
+    day-start: "08:00"
+    day-end: "20:00"
+    step-minutes: 30
+    buffer-minutes: 30
+    min-lead-minutes: 60
+    horizon-days: 7
+    payment-hold-minutes: 15
+  dispatch:
+    offer-ttl-seconds: 30
+    radii-km: [2, 5, 10]
+    search-window-minutes: 10
+    retry-seconds: 10
+    lead-minutes: 90
+    max-concurrent-jobs: 3
+    weight-distance: 0.40
+    weight-rating: 0.30
+    weight-acceptance: 0.20
+    weight-workload: 0.10
+  payment:
+    webhook-secret: ${WEBHOOK_SECRET:uc-webhook-secret}
+  earnings:
+    tds-percent: 1.00
+    min-withdrawal: 500.00
